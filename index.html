@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El visitante del Bosque - Comprensión Lectora</title>
+    <style>
+        /* =========================================
+           VARIABLES Y ESTILOS BASE (DISEÑO INFANTIL)
+           ========================================= */
+        :root {
+            --primary: #4CAF50;
+            --primary-light: #C8E6C9;
+            --secondary: #FF9800;
+            --accent: #03A9F4;
+            --text-dark: #333;
+            --bg-color: #F3F4F6;
+            --white: #FFF;
+            --font-main: 'Comic Sans MS', 'Nunito', 'Segoe UI', sans-serif; /* Tipografía amigable */
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* =========================================
+           PANTALLA DE INICIO (LOGIN)
+           ========================================= */
+        #login-screen {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 100px auto;
+            animation: bounceIn 1s ease;
+        }
+
+        input[type="text"] {
+            font-family: var(--font-main);
+            font-size: 1.5rem;
+            padding: 15px;
+            border: 3px solid var(--primary-light);
+            border-radius: 15px;
+            width: 80%;
+            margin: 20px 0;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-light);
+        }
+
+        .btn {
+            font-family: var(--font-main);
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #E65100; /* Botón estilo 3D */
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #E65100;
+        }
+
+        .btn:hover {
+            background-color: #FFA726;
+        }
+
+        /* =========================================
+           PANTALLA PRINCIPAL (LECTURA Y PREGUNTAS)
+           ========================================= */
+        #app-screen {
+            display: none;
+        }
+
+        /* Cabecera con insignias */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .badges-container {
+            display: flex;
+            gap: 15px;
+            font-size: 1.5rem;
+        }
+
+        .badge {
+            opacity: 0.3;
+            transition: 0.5s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 2rem;
+        }
+        .badge span { font-size: 0.8rem; font-weight: bold; color: var(--text-dark); }
+        .badge.active { opacity: 1; transform: scale(1.2); }
+
+        /* Layout dividido */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media(max-width: 800px) {
+            .workspace { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Herramientas de destacado */
+        .toolbar {
+            background: var(--primary-light);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-btn {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .color-btn.selected { border: 3px solid #333; transform: scale(1.2); }
+
+        select.tag-selector {
+            font-family: var(--font-main);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        /* Texto de lectura */
+        #reading-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            padding: 10px;
+        }
+
+        .highlighted-text {
+            border-radius: 3px;
+            padding: 0 2px;
+            position: relative;
+        }
+        .highlight-tag {
+            font-size: 0.6rem;
+            background: black;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+            vertical-align: super;
+            margin-left: 2px;
+        }
+
+        /* Panel de preguntas */
+        .question-header {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: var(--bg-color);
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option-btn:hover { background: #E3F2FD; border-color: var(--accent); }
+        .option-btn.correct { background: #C8E6C9; border-color: #4CAF50; }
+        .option-btn.incorrect { background: #FFCDD2; border-color: #F44336; }
+
+        .textarea-response {
+            width: 100%;
+            height: 120px;
+            font-family: var(--font-main);
+            font-size: 1.2rem;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        /* Feedback y Navegación */
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-size: 1.1rem;
+            animation: fadeIn 0.5s ease;
+        }
+        .feedback-box.success { background: #E8F5E9; border-left: 5px solid #4CAF50; }
+        .feedback-box.error { background: #FFF3E0; border-left: 5px solid #FF9800; }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Animaciones */
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- PANTALLA DE INICIO -->
+        <div id="login-screen">
+            <h1>🌲 El visitante del Bosque 🦊</h1>
+            <p style="font-size: 1.2rem;">¡Hola! Escribe tu nombre para empezar tu aventura de lectura.</p>
+            <input type="text" id="student-name" placeholder="Tu nombre aquí..." />
+            <br>
+            <button class="btn" onclick="startApp()">¡Comenzar a leer!</button>
+        </div>
+
+        <!-- PANTALLA PRINCIPAL -->
+        <div id="app-screen">
+            <header>
+                <h2>👋 ¡Hola, <span id="display-name"></span>!</h2>
+                <div class="badges-container">
+                    <div class="badge" id="badge-1">🔎<span>Detective</span></div>
+                    <div class="badge" id="badge-2">⭐<span>Buscador</span></div>
+                    <div class="badge" id="badge-3">🎯<span>Maestro</span></div>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <!-- PANEL IZQUIERDO: TEXTO Y HERRAMIENTAS -->
+                <div class="panel">
+                    <h3>📖 Texto de lectura</h3>
+                    
+                    <div class="toolbar">
+                        <strong>🖌️ Destacador:</strong>
+                        <div class="color-btn" style="background: yellow;" onclick="selectColor('yellow')"></div>
+                        <div class="color-btn" style="background: #A5D6A7;" onclick="selectColor('#A5D6A7')"></div>
+                        <div class="color-btn" style="background: #90CAF9;" onclick="selectColor('#90CAF9')"></div>
+                        <div class="color-btn" style="background: #F48FB1;" onclick="selectColor('#F48FB1')"></div>
+                        
+                        <select class="tag-selector" id="tag-selector">
+                            <option value="">Sin etiqueta</option>
+                            <option value="R1">Pista R1</option>
+                            <option value="R2">Pista R2</option>
+                            <option value="R3">Pista R3</option>
+                            <option value="R4">Pista R4</option>
+                            <option value="R5">Pista R5</option>
+                            <option value="R6">Pista R6</option>
+                            <option value="R7">Pista R7</option>
+                            <option value="R8">Pista R8</option>
+                            <option value="R9">Pista R9</option>
+                            <option value="R10">Pista R10</option>
+                            <option value="R11">Pista R11</option>
+                            <option value="R12">Pista R12</option>
+                            <option value="R13">Pista R13</option>
+                        </select>
+                        <button class="btn" style="font-size: 0.9rem; padding: 8px 15px;" onclick="applyHighlight('reading-text')">Destacar texto</button>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666;"><em>💡 Selecciona palabras en el cuento o en la pregunta y presiona "Destacar texto".</em></p>
+
+                    <div id="reading-text">
+                        <p>En el frondoso Bosque de los Alerces, la ardilla Rufina guardaba celosamente su mayor tesoro: una gran colección de nueces y bellotas doradas. Las escondía en el hueco del árbol más viejo para protegerlas del frío invierno que se acercaba.</p>
+                        <p>Una mañana de mucho viento, Rufina estaba cerrando las persianas de su pequeña casa de madera cuando avistó a alguien caminando por el sendero. Era un forastero: un zorro con una mochila azul que nunca antes había pisado el bosque y miraba hacia todos lados con confusión.</p>
+                        <p>El zorro no venía solo. Lo perseguía un enorme y molesto tábano que zumbaba furioso, intentando clavarle su puntiagudo aguijón en las orejas. El pobre forastero corría de un lado a otro intentando esquivarlo. Rufina, al ver esto desde su ventana, se asustó mucho. Pensó que los insectos venían en grupo y que pronto habría una epidemia de picaduras en todo el bosque.</p>
+                        <p>A pesar de su miedo, la ardilla bajó rápidamente de su árbol con una rama de pino en las patas. Espantó al insecto con valentía y ayudó al zorro a esconderse dentro de su tronco. Desde ese día, el forastero se convirtió en el mejor amigo de Rufina y juntos compartieron las deliciosas bellotas durante todo el invierno.</p>
+                    </div>
+                </div>
+
+                <!-- PANEL DERECHO: PREGUNTAS -->
+                <div class="panel">
+                    <h3 style="color: var(--secondary)">📝 Pregunta <span id="question-number"></span> de 13</h3>
+                    
+                    <div id="question-text" class="question-header"></div>
+                    <div id="options-container"></div>
+                    
+                    <div id="feedback-area" class="feedback-box"></div>
+
+                    <div class="navigation">
+                        <button class="btn" style="background:#999; box-shadow: 0 5px 0 #666;" id="btn-prev" onclick="prevQuestion()">Anterior</button>
+                        <button class="btn" id="btn-next" onclick="nextQuestion()">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================
+           BASE DE DATOS DE PREGUNTAS
+           ========================================= */
+        const questions = [
+            {
+                id: 1, type: "choice", answer: 2,
+                text: "¿Dónde escondía Rufina sus nueces y bellotas doradas?",
+                options: ["A. En su pequeña casa de madera.", "B. En una mochila de color azul.", "C. En el hueco del árbol más viejo."],
+                clue1: "Busca en el primer párrafo el lugar donde guardaba su mayor tesoro.",
+                clue2: "Lee esta parte: 'Las escondía en el hueco del...'",
+                successMsg: "¡Excelente {name}! En el primer párrafo dice claramente que las escondía en el hueco del árbol más viejo."
+            },
+            {
+                id: 2, type: "choice", answer: 1,
+                text: "¿Por qué el zorro miraba hacia todos lados con confusión?",
+                options: ["A. Porque estaba buscando las bellotas doradas de la ardilla.", "B. Porque no conocía el bosque y no sabía a dónde ir.", "C. Porque estaba buscando una rama de pino para defenderse."],
+                clue1: "Revisa el segundo párrafo. Dice que el zorro 'nunca antes había pisado el bosque'.",
+                clue2: "Si alguien nunca ha estado en un lugar nuevo, ¿qué le pasa? ¿Se pierde o busca comida?",
+                successMsg: "¡Muy bien pensado, {name}! Como era nuevo en el bosque, no sabía a dónde ir."
+            },
+            {
+                id: 3, type: "choice", answer: 1,
+                text: "¿Qué hizo Rufina justo después de espantar al insecto con la rama?",
+                options: ["A. Cerró las persianas de su pequeña casa.", "B. Ayudó al zorro a esconderse en su tronco.", "C. Compartió las deliciosas bellotas en el invierno."],
+                clue1: "Ve al último párrafo. Lee lo que pasó justo después de que espantó al insecto.",
+                clue2: "La oración dice: 'Espantó al insecto con valentía y ayudó al zorro a...'",
+                successMsg: "¡Genial {name}! Después de espantar al bicho, ayudó al zorro a esconderse."
+            },
+            {
+                id: 4, type: "choice", answer: 0,
+                text: "A partir de sus acciones en el cuento, ¿cómo es Rufina?",
+                options: ["A. Valiente y solidaria.", "B. Asustadiza y egoísta.", "C. Curiosa y distraída."],
+                clue1: "Piensa en lo que hizo Rufina al final. A pesar de tener miedo, ella salió a ayudar.",
+                clue2: "Alguien que ayuda a otros aunque tenga miedo es...",
+                successMsg: "¡Eres un gran lector, {name}! Rufina fue valiente al salir y solidaria al compartir su comida."
+            },
+            {
+                id: 5, type: "choice", answer: 2,
+                text: "¿Cómo estaba el clima en el bosque esa mañana?",
+                options: ["A. Lluvioso y muy oscuro.", "B. Soleado y con mucho calor.", "C. Helado y con mucho viento."],
+                clue1: "Busca en el segundo párrafo las primeras palabras que describen la mañana.",
+                clue2: "También recuerda que en el primer párrafo dice que se acercaba el 'frío invierno'.",
+                successMsg: "¡Correcto {name}! Era una mañana de mucho viento y hacía frío por el invierno."
+            },
+            {
+                id: 6, type: "choice", answer: 0,
+                text: 'Lee: "Era un forastero: un zorro con una mochila azul que nunca antes había pisado el bosque..."\n¿Qué significa la palabra subrayada (forastero)?',
+                options: ["A. Un animal que viene de otro lugar.", "B. Un animal que busca comida.", "C. Un animal que es muy peligroso."],
+                clue1: "Fíjate en las palabras que siguen: 'que nunca antes había pisado el bosque'.",
+                clue2: "Si alguien nunca ha estado en tu ciudad, significa que viene de...",
+                successMsg: "¡Súper vocabulario, {name}! Forastero es alguien de otro lugar."
+            },
+            {
+                id: 7, type: "choice", answer: 2,
+                text: "¿De qué se trata principalmente este cuento?",
+                options: ["A. De cómo una ardilla preparaba su casa para el invierno.", "B. De un tábano molesto que perseguía a los animales.", "C. De cómo una ardilla ayudó a un extraño y se hicieron amigos."],
+                clue1: "Piensa en la historia completa. ¿Cuál es el evento más importante que cambia todo?",
+                clue2: "Aunque preparaba su casa, lo central es lo que ocurre con el zorro.",
+                successMsg: "¡Excelente resumen {name}! Lo principal es la amistad que surge tras ayudar al zorro."
+            },
+            {
+                id: 8, type: "choice", answer: 0,
+                text: "Según lo leído, ¿qué característica define mejor al zorro cuando recién llegó al bosque?",
+                options: ["A. Estaba desorientado.", "B. Era muy agresivo.", "C. Era muy cuidadoso."],
+                clue1: "Recuerda que miraba 'hacia todos lados con confusión'.",
+                clue2: "La palabra confusión significa no saber dónde se está.",
+                successMsg: "¡Muy bien {name}! Estaba desorientado porque no conocía el lugar."
+            },
+            {
+                id: 9, type: "choice", answer: 1,
+                text: 'Lee: "Pensó que los insectos venían en grupo y que pronto habría una epidemia de picaduras..."\n¿Qué creyó Rufina que pasaría?',
+                options: ["A. Que el invierno llegaría mucho más rápido ese año.", "B. Que una gran cantidad de animales se llenaría de picaduras.", "C. Que llegarían muchos más forasteros con mochilas azules."],
+                clue1: "Una 'epidemia' es cuando algo afecta a muchas personas (o animales) al mismo tiempo.",
+                clue2: "Si dice 'epidemia de picaduras', significa que muchos sufrirían...",
+                successMsg: "¡Gran deducción, {name}! Rufina temía que todos en el bosque fueran picados."
+            },
+            {
+                id: 10, type: "choice", answer: 2,
+                text: "¿Por qué el zorro corría desesperado de un lado a otro por el sendero?",
+                options: ["A. Porque quería encontrar rápido el árbol de la ardilla.", "B. Porque estaba buscando un lugar seguro para su mochila.", "C. Porque intentaba escapar de un insecto que quería picarlo."],
+                clue1: "Lee el tercer párrafo. Busca a quién o a qué intentaba esquivar.",
+                clue2: "Decía que lo perseguía un molesto tábano (insecto)...",
+                successMsg: "¡Exacto {name}! Huía del tábano que quería picarlo."
+            },
+            {
+                id: 11, type: "choice", answer: 0,
+                text: "¿Cómo se sintió Rufina al ver por la ventana al tábano persiguiendo al zorro?",
+                options: ["A. Sintió temor al imaginar que llegarían muchos insectos más.", "B. Sintió molestia porque el zumbido no la dejaba descansar.", "C. Sintió alegría al ver que llegaban nuevos visitantes."],
+                clue1: "Vuelve al tercer párrafo. Dice 'Rufina, al ver esto desde su ventana...'",
+                clue2: "El texto dice directamente: 'se asustó mucho. Pensó que los insectos venían en grupo'.",
+                successMsg: "¡Bien hecho, {name}! Ella sintió mucho temor (se asustó)."
+            },
+            {
+                id: 12, type: "choice", answer: 1,
+                text: "¿Cuál es el propósito del texto 'El visitante del Bosque de los Alerces'?",
+                options: ["A. Enseñar los pasos para que las ardillas guarden alimentos.", "B. Relatar la historia sobre el encuentro de dos animales.", "C. Informar sobre el peligro que tienen las picaduras de tábano."],
+                clue1: "El texto es un cuento (tiene personajes, un problema y un final).",
+                clue2: "Los cuentos siempre sirven para contar o relatar algo que pasó.",
+                successMsg: "¡Perfecto {name}! Es un texto narrativo, su propósito es relatar una historia."
+            },
+            {
+                id: 13, type: "open",
+                text: "¿Estás de acuerdo con la decisión que tomó Rufina de salir de su casa para ayudar al zorro? Usa información del texto para fundamentar tu respuesta.",
+                successMsg: "¡Gracias por compartir tu opinión, {name}! Es muy importante usar el texto para apoyar tus ideas, como el hecho de que ella fue 'valiente' o que lograron ser 'mejores amigos'."
+            }
+        ];
+
+        /* =========================================
+           VARIABLES DE ESTADO Y LOCALSTORAGE
+           ========================================= */
+        let state = {
+            studentName: "",
+            currentIndex: 0,
+            score: 0,
+            answers: {},      // Guarda opción elegida o texto
+            attempts: {}      // Cuenta intentos por pregunta (id: count)
+        };
+
+        let selectedColor = 'yellow';
+
+        // Inicializar desde localStorage si existe
+        window.onload = () => {
+            const savedState = localStorage.getItem('lenguaje_3b_progreso');
+            if(savedState) {
+                state = JSON.parse(savedState);
+                if(state.studentName !== "") {
+                    document.getElementById('student-name').value = state.studentName;
+                }
+            }
+        };
+
+        /* =========================================
+           FUNCIONES PRINCIPALES
+           ========================================= */
+        function startApp() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            if(!nameInput) {
+                alert("¡Por favor, escribe tu nombre para comenzar!");
+                return;
+            }
+            state.studentName = nameInput;
+            document.getElementById('display-name').textContent = state.studentName;
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            
+            saveProgress();
+            renderQuestion();
+            checkBadges();
+        }
+
+        function renderQuestion() {
+            const q = questions[state.currentIndex];
+            document.getElementById('question-number').textContent = q.id;
+            // Permitir destacar el texto de la pregunta también
+            document.getElementById('question-text').innerHTML = q.text.replace(/\n/g, "<br>");
+            
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackArea = document.getElementById('feedback-area');
+            
+            optionsContainer.innerHTML = '';
+            feedbackArea.style.display = 'none';
+            feedbackArea.className = 'feedback-box';
+
+            if(q.type === "choice") {
+                q.options.forEach((opt, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    
+                    // Si ya está respondida correctamente
+                    if (state.answers[q.id] === q.answer) {
+                        btn.disabled = true;
+                        if(index === q.answer) btn.classList.add('correct');
+                    } else {
+                        btn.onclick = () => handleAnswer(q, index, btn);
+                    }
+                    optionsContainer.appendChild(btn);
+                });
+
+                // Mostrar feedback guardado si ya la contestó bien
+                if (state.answers[q.id] === q.answer) {
+                    showFeedback(q.successMsg.replace('{name}', state.studentName), 'success');
+                }
+
+            } else if (q.type === "open") {
+                const textarea = document.createElement('textarea');
+                textarea.className = 'textarea-response';
+                textarea.placeholder = "Escribe aquí tu respuesta...";
+                if(state.answers[q.id]) textarea.value = state.answers[q.id];
+                
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'btn';
+                saveBtn.style.marginTop = '10px';
+                saveBtn.textContent = 'Guardar Respuesta';
+                saveBtn.onclick = () => {
+                    state.answers[q.id] = textarea.value;
+                    state.score++; // Damos punto por responder
+                    showFeedback(q.successMsg.replace('{name}', state.studentName), 'success');
+                    saveProgress();
+                    checkBadges();
+                };
+
+                optionsContainer.appendChild(textarea);
+                optionsContainer.appendChild(saveBtn);
+                
+                if (state.answers[q.id]) {
+                    showFeedback(q.successMsg.replace('{name}', state.studentName), 'success');
+                }
+            }
+
+            // Control botones de navegación
+            document.getElementById('btn-prev').style.visibility = (state.currentIndex === 0) ? 'hidden' : 'visible';
+            document.getElementById('btn-next').textContent = (state.currentIndex === questions.length - 1) ? 'Terminar' : 'Siguiente';
+        }
+
+        function handleAnswer(q, selectedIndex, btnElement) {
+            if (!state.attempts[q.id]) state.attempts[q.id] = 0;
+            state.attempts[q.id]++;
+
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            if (selectedIndex === q.answer) {
+                // Correcto
+                btnElement.classList.add('correct');
+                state.answers[q.id] = selectedIndex;
+                
+                if (state.attempts[q.id] === 1) state.score += 1; // Punto completo si es a la primera
+                
+                showFeedback(q.successMsg.replace('{name}', state.studentName), 'success');
+                
+                // Deshabilitar botones
+                allBtns.forEach(b => b.disabled = true);
+                saveProgress();
+                checkBadges();
+            } else {
+                // Incorrecto
+                btnElement.classList.add('incorrect');
+                setTimeout(() => btnElement.classList.remove('incorrect'), 1500); // quitar rojo después de un ratito
+                
+                let feedbackMsg = "";
+                if (state.attempts[q.id] === 1) {
+                    feedbackMsg = `¡Casi, ${state.studentName}! Pista 1: ${q.clue1} Vuelve al texto a comprobar.`;
+                } else {
+                    feedbackMsg = `Sigue intentando, ${state.studentName}. Pista 2: ${q.clue2}`;
+                }
+                showFeedback(feedbackMsg, 'error');
+            }
+        }
+
+        function showFeedback(message, type) {
+            const fb = document.getElementById('feedback-area');
+            fb.textContent = message;
+            fb.className = 'feedback-box ' + type;
+            fb.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            if (state.currentIndex < questions.length - 1) {
+                state.currentIndex++;
+                renderQuestion();
+                saveProgress();
+            } else {
+                alert(`¡Felicidades ${state.studentName}! Has completado todas las preguntas. Eres un súper lector.`);
+            }
+        }
+
+        function prevQuestion() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                renderQuestion();
+                saveProgress();
+            }
+        }
+
+        /* =========================================
+           SISTEMA DE INSIGNIAS Y GUARDADO
+           ========================================= */
+        function checkBadges() {
+            // Contamos cuantas ha respondido correctamente
+            let correctCount = Object.keys(state.answers).length;
+            
+            if (correctCount >= 3) document.getElementById('badge-1').classList.add('active');
+            if (correctCount >= 7) document.getElementById('badge-2').classList.add('active');
+            if (correctCount >= 12) document.getElementById('badge-3').classList.add('active');
+        }
+
+        function saveProgress() {
+            localStorage.setItem('lenguaje_3b_progreso', JSON.stringify(state));
+        }
+
+        /* =========================================
+           HERRAMIENTA PARA DESTACAR TEXTO
+           ========================================= */
+        function selectColor(color) {
+            selectedColor = color;
+            // Update UI buttons
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if(btn.style.background === color || btn.style.backgroundColor === color) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+        // Seleccionar amarillo por defecto
+        selectColor('yellow'); 
+
+        function applyHighlight(containerId) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) {
+                alert(`¡Hola ${state.studentName}! Para destacar, primero selecciona con tu mouse las palabras en el cuento o en la pregunta.`);
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            
+            // Verificar que lo seleccionado esté dentro del contenedor de lectura o pregunta
+            const readingNode = document.getElementById('reading-text');
+            const questionNode = document.getElementById('question-text');
+            
+            if (!readingNode.contains(range.commonAncestorContainer) && !questionNode.contains(range.commonAncestorContainer)) {
+                 return; // Si selecciona fuera, no hacemos nada
+            }
+
+            try {
+                // Crear el elemento span para envolver el texto
+                const span = document.createElement('span');
+                span.className = 'highlighted-text';
+                span.style.backgroundColor = selectedColor;
+
+                // Aplicar etiqueta (R1, R2, etc.) si se seleccionó en el menú
+                const tagValue = document.getElementById('tag-selector').value;
+                if(tagValue !== "") {
+                    const tag = document.createElement('span');
+                    tag.className = 'highlight-tag';
+                    tag.textContent = tagValue;
+                    
+                    // Extraer contenido y envolverlo
+                    const content = range.extractContents();
+                    span.appendChild(content);
+                    span.appendChild(tag);
+                } else {
+                    const content = range.extractContents();
+                    span.appendChild(content);
+                }
+
+                range.insertNode(span);
+                // Limpiar la selección para que el niño pueda seguir leyendo normal
+                selection.removeAllRanges();
+
+            } catch(e) {
+                console.log("No se pudo destacar a través de varios párrafos. Intenta seleccionar dentro del mismo párrafo.");
+            }
+        }
+    </script>
+</body>
+</html>
